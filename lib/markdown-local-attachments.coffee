@@ -1,5 +1,5 @@
 {CompositeDisposable} = require 'atom'
-{dirname, join} = require 'path'
+{dirname, basename, join} = require 'path'
 clipboard = require 'clipboard'
 fs = require 'fs'
 
@@ -128,7 +128,7 @@ module.exports =
           cursor.setCursorBufferPosition position
           if atom.config.get 'markdown-local-attachments.infoalertenable'
             if atom.config.get 'markdown-local-attachments.infoalertenable'
-              atom.notifications.addSuccess(message = messagecontent, {detail:'文件促存放路径:' + fullname})
+              atom.notifications.addSuccess(message = messagecontent, {detail:'文件存放路径:' + fullname})
 
         # 捕获错误异常
         catch error
@@ -138,16 +138,16 @@ module.exports =
     attachFile : ->
         try
           if !cursor = atom.workspace.getActiveTextEditor() then return
-          text = clipboard.readText()
-          # 保证文本黏贴正常使用
-          if(text)
-            editor = atom.workspace.getActiveTextEditor()
-            editor.insertText(text)
-            return
 
           # 文件类型检测，根据扩展名
           fileFormat = ""
-          if !grammar = cursor.getGrammar() then return
+          if !grammar = cursor.getGrammar()
+              # 保证文本黏贴正常使用
+              text = clipboard.readText()
+              if(text)
+                  editor = atom.workspace.getActiveTextEditor()
+                  editor.insertText(text)
+                  return
           if cursor.getPath()
               # We are in a markdown file
               if  cursor.getPath().substr(-3) == '.md' or
@@ -159,25 +159,32 @@ module.exports =
                   grammar.scopeName != 'source.gfm'
                       fileFormat = "rst"
           else
-              if grammar.scopeName != 'source.gfm' then return
+              if grammar.scopeName != 'source.gfm'
+                  # 保证文本黏贴正常使用
+                  text = clipboard.readText()
+                  if(text)
+                      editor = atom.workspace.getActiveTextEditor()
+                      editor.insertText(text)
+                      return
 
           # clipboard扩展读取文件路径
           # windows系统
           rawFilePath = clipboard.read('FileNameW')
           filePath = rawFilePath.replace(new RegExp(String.fromCharCode(0), 'g'), '')
-          if filePath.isEmpty()
-            # mac系统
-            filePath = clipboard.read('public.file-url').replace('file://', '')
-          atom.notifications.addSuccess(message = 'File path', {detail:'文件路径:' + filePath})
+          if !fs.existsSync filePath
+              # mac系统
+              filePath = decodeURI(clipboard.read('public.file-url').replace('file://', ''))
 
-          img = clipboard.readImage()
-          # 空内容处理
-          if img.isEmpty()
-            if atom.config.get 'markdown-local-attachments.infoalertenable'
-              atom.notifications.addError(message = '快速贴图失败', {detail:'粘贴板为空'})
-            return
+          if !fs.existsSync filePath
+              # 保证文本黏贴正常使用
+              text = clipboard.readText()
+              if(text)
+                  editor = atom.workspace.getActiveTextEditor()
+                  editor.insertText(text)
+                  return
 
-          # filePath, fileName, filenameNosuffix, fullname(xiamian)
+          filenameRaw = basename(filePath)
+          filename = encodeURI(filenameRaw)
 
           # 设定文件存放子目录
           curDirectory = dirname(cursor.getPath())
@@ -196,50 +203,31 @@ module.exports =
               # 文件完整路径名
               fullname = join(assetsDirectory, filename)
 
-          # 写图片到文件系统 img.toPng() 这个地方会造成错误，版本问题
-          # 如果不灵光，就要 ctrl+shift+i 查看日志
-          fs.writeFileSync fullname, img.toPNG()
+          fs.copyFileSync filePath, fullname
 
-          # 如果当前行就是空白行，直接插入，否则删除行内容插入
-          if !cursor.getBuffer().isRowBlank(position.row)
-              # 修改光标在删除行上一行尾部，从尾部插入图片链接代码
-              position.column = 0
-              cursor.setCursorBufferPosition position
-              # 删除光标之后行的内容
-              editor.deleteToEndOfLine(true)
-
-          # 如果下一行不为空，则添加一个空行分割开来
-          textd = ""
-          if !cursor.getBuffer().isRowBlank(parseInt(position.row + 1))
-            textd += "\r\n"
-
-          # 插入图片代码，如果上一行不为空，则添加一个空行分割开来
-          textb = ""
-          if !cursor.getBuffer().isRowBlank(parseInt(position.row - 1))
-            textb += "\r\n"
-            position.row = parseInt(position.row + 1)
-
+          text = ""
           if(fileFormat == "md")
             # markdown文件链接代码生成
-            text += '[' + filenameNosuffix + ']('
-            text += join(subFolderToUse, filename) + ') '
+            text += '[' + filenameRaw + ']('
+            text += join(subFolderToUse, filename) + ')'
           else if (fileFormat == "rst")
             # rst文件链接代码生成
-            text += ".. _" + filenameNosuffix + ": "
+            text += ".. _" + filenameRaw + ": "
             text += join(subFolderToUse, filename) + '\r\n'
             text += "\t :alt: " + filename
 
           # 将反斜杠改成斜杠，这样在github和gitbook上都可以正常显示
           text = text.replace(/\\/g, "/");
-          position.column = text.length
-          text = textb + text + textd
 
           # 写代码到光标行
+          position = cursor.getCursorBufferPosition()
           cursor.insertText text
+          position.column = text.length
           cursor.setCursorBufferPosition position
+
           if atom.config.get 'markdown-local-attachments.infoalertenable'
             if atom.config.get 'markdown-local-attachments.infoalertenable'
-              atom.notifications.addSuccess(message = messagecontent, {detail:'文件促存放路径:' + fullname})
+              atom.notifications.addSuccess(message = 'File attached', {detail:'Attachment path:' + fullname})
 
         # 捕获错误异常
         catch error

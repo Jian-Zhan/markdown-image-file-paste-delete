@@ -1,5 +1,5 @@
 {
-  "_id": "markdown-local-attachments@0.1.0",
+  "_id": "markdown-local-attachments@0.4.0",
   "_inCache": true,
   "_location": "/markdown-local-attachments",
   "_phantomChildren": {},
@@ -55,5 +55,10 @@
     "type": "git",
     "url": "git+https://github.com/Jian-Zhan/markdown-local-attachments.git"
   },
-  "version": "0.3.0"
+  "version": "0.4.0",
+  "apmInstallSource": {
+    "type": "git",
+    "source": "https://github.com/jian-zhan/markdown-local-attachments",
+    "sha": "c7ce344e6f2baa440b32d969c55ec0c585af237f"
+  }
 }
