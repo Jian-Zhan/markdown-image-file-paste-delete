@@ -1,7 +1,6 @@
 {
   "atom-workspace atom-text-editor": {
-    "ctrl-v":       "markdown-image-paste-delete:insert-image",
-    "ctrl-shift-v": "markdown-image-paste-delete:attach-file",
-    "ctrl-delete":  "markdown-image-paste-delete:delete-file"
+    "cmd-v":      "markdown-local-attachments:attach-file",
+    "cmd-backspace":  "markdown-local-attachments:delete-file"
   }
 }
