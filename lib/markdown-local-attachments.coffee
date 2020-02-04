@@ -10,16 +10,16 @@ module.exports =
     activate : ->
       @subscriptions = new CompositeDisposable
       @subscriptions.add atom.commands.add 'atom-workspace',
-            'markdown-local-attachments:insert-image' : => @insert-image()
+            'markdown-local-attachments:insert-image' : => @insertImage()
       @subscriptions.add atom.commands.add 'atom-workspace',
-            'markdown-local-attachments:attach-file' : => @attach-file()
+            'markdown-local-attachments:attach-file' : => @attachFile()
       @subscriptions.add atom.commands.add 'atom-workspace',
-            'markdown-local-attachments:delete-file' : => @delete-file()
+            'markdown-local-attachments:delete-file' : => @deleteFile()
 
     deactivate : ->
         @subscriptions.dispose()
 
-    insert-image : ->
+    insertImage : ->
         try
           if !cursor = atom.workspace.getActiveTextEditor() then return
           text = clipboard.readText()
@@ -134,7 +134,7 @@ module.exports =
             if atom.config.get 'markdown-local-attachments.infoalertenable'
               atom.notifications.addError(message = '贴图失败', {detail:'错误原因:' + error})
 
-    attach-file : ->
+    attachFile : ->
         try
           if !cursor = atom.workspace.getActiveTextEditor() then return
           text = clipboard.readText()
@@ -249,7 +249,7 @@ module.exports =
             if atom.config.get 'markdown-local-attachments.infoalertenable'
               atom.notifications.addError(message = '贴图失败', {detail:'错误原因:' + error})
 
-    delete-file : ->
+    deleteFile : ->
         try
           if !cursor = atom.workspace.getActiveTextEditor() then return
 
