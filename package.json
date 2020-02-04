@@ -1,58 +1,59 @@
 {
-  "_id": "markdown-image-paste-delete@0.1.0",
+  "_id": "markdown-local-attachments@0.1.0",
   "_inCache": true,
-  "_location": "/markdown-image-paste-delete",
+  "_location": "/markdown-local-attachments",
   "_phantomChildren": {},
   "_requiredBy": [
     "#USER"
   ],
   "bugs": {
-    "url": "https://github.com/yifengyou/markdown-image-paste-delete/issues"
+    "url": "https://github.com/Jian-Zhan/markdown-local-attachments/issues"
   },
   "configSchema": {
     "use_subfolder": {
       "type": "boolean",
       "default": true,
-      "title": "保存图片到子目录(Save image to subdirectory)",
-      "description": "图片会存放在当前工作目录的子目录，子目录不存在则创建(Images will be stored in a subdirectory of the current working directory. Create a subdirectory if it does not exist)",
+      "title": "Save local attachments to subdirectory",
+      "description": "Local attachments (images and other files) will be stored in a subdirectory of the current working directory. Create a subdirectory if it does not exist",
       "order": 10
     },
     "subfolder": {
       "type": "string",
-      "default": "image",
-      "title": "存放图片的子目录名称(The name of the subdirectory where the image is stored)",
+      "default": "attachments",
+      "title": "The name of the subdirectory where the local attachments are stored",
       "description": "",
       "order": 20
     },
     "infoalertenable": {
       "type": "boolean",
       "default": true,
-      "title": "弹窗信息显示(Whether to display popup information)",
-      "description": "每次贴图等操作右上角弹窗显示状态(In each operation, the pop-up window in the upper right corner displays the status)",
+      "title": "Whether to display popup information",
+      "description": "In each operation, the pop-up window in the upper right corner displays the status",
       "order": 30
     }
   },
   "dependencies": {},
-  "description": "Markdown快速贴图/删除图片(Quick and easy to paste/delete pictures in Markdown)",
+  "description": "Quick and easy to paste/delete local attachments (images and other files) in Markdown",
   "devDependencies": {},
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
-  "homepage": "https://github.com/yifengyou/markdown-image-paste-delete#readme",
+  "homepage": "https://github.com/Jian-Zhan/markdown-local-attachments#readme",
   "keywords": [
     "atom",
     "markdown",
     "image",
+    "file",
     "paste",
     "delete"
   ],
   "license": "MIT",
-  "main": "./lib/markdown-image-paste-delete",
-  "name": "markdown-image-paste-delete",
+  "main": "./lib/markdown-local-attachments",
+  "name": "markdown-local-attachments",
   "optionalDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yifengyou/markdown-image-paste-delete.git"
+    "url": "git+https://github.com/Jian-Zhan/markdown-local-attachments.git"
   },
   "version": "0.3.0"
 }

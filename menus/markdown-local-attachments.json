@@ -1,0 +1,42 @@
+{
+  "context-menu": {
+    "atom-text-editor": [
+      {
+        "label": "Insert Image",
+        "command": "markdown-local-attachments:insert"
+      },
+      {
+        "label": "Attach File",
+        "command": "markdown-local-attachments:attach"
+      },
+      {
+        "label": "Delete File/Image",
+        "command": "markdown-local-attachments:delete"
+      }
+    ]
+  },
+  "menu": [
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "markdown-local-attachments",
+          "submenu": [
+            {
+              "label": "Insert Image",
+              "command": "markdown-local-attachments:insert"
+            },
+            {
+              "label": "Attach File",
+              "command": "markdown-local-attachments:attach"
+            },
+            {
+              "label": "Delete File/Image",
+              "command": "markdown-local-attachments:delete"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

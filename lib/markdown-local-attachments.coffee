@@ -19,7 +19,7 @@ module.exports =
     deactivate : ->
         @subscriptions.dispose()
 
-    paste : ->
+    insert : ->
         try
           if !cursor = atom.workspace.getActiveTextEditor() then return
           text = clipboard.readText()
@@ -134,7 +134,121 @@ module.exports =
             if atom.config.get 'markdown-image-paste-delete.infoalertenable'
               atom.notifications.addError(message = '贴图失败', {detail:'错误原因:' + error})
 
-    delImage : ->
+    attach : ->
+        try
+          if !cursor = atom.workspace.getActiveTextEditor() then return
+          text = clipboard.readText()
+          # 保证文本黏贴正常使用
+          if(text)
+            editor = atom.workspace.getActiveTextEditor()
+            editor.insertText(text)
+            return
+
+          # 文件类型检测，根据扩展名
+          fileFormat = ""
+          if !grammar = cursor.getGrammar() then return
+          if cursor.getPath()
+              # We are in a markdown file
+              if  cursor.getPath().substr(-3) == '.md' or
+                  cursor.getPath().substr(-9) == '.markdown' and
+                  grammar.scopeName != 'source.gfm'
+                      fileFormat = "md"
+              # We are in a RST file
+              else if cursor.getPath().substr(-4) == '.rst' and
+                  grammar.scopeName != 'source.gfm'
+                      fileFormat = "rst"
+          else
+              if grammar.scopeName != 'source.gfm' then return
+
+          # clipboard扩展读取粘贴板图片内容
+          img = clipboard.readImage()
+          # 空内容处理
+          if img.isEmpty()
+            if atom.config.get 'markdown-image-paste-delete.infoalertenable'
+              atom.notifications.addError(message = '快速贴图失败', {detail:'粘贴板为空'})
+            return
+
+          editor = atom.workspace.getActiveTextEditor()
+          position = cursor.getCursorBufferPosition()
+
+          filenamecandidate = atom.workspace.getActiveTextEditor().getSelectedText()
+          # 检测选中区域是否可以构成文件名
+          filenamePattern = /// ^[0-9a-zA-Z-_]+$ ///
+          if filenamecandidate.match filenamePattern
+            messagecontent = "命名贴图成功"
+            filename = filenamecandidate
+          else
+            messagecontent = "快速贴图成功"
+            filename = new Date().format()
+
+          filenameNosuffix = filename
+          # 添加文件名后缀
+          filename += ".png"
+
+          # 如果当前行就是空白行，直接插入，否则删除行内容插入
+          if !cursor.getBuffer().isRowBlank(position.row)
+              # 修改光标在删除行上一行尾部，从尾部插入图片链接代码
+              position.column = 0
+              cursor.setCursorBufferPosition position
+              # 删除光标之后行的内容
+              editor.deleteToEndOfLine(true)
+          # 设定文件存放子目录
+          curDirectory = dirname(cursor.getPath())
+          # Join adds a platform independent directory separator
+          fullname = join(curDirectory, filename)
+
+          subFolderToUse = ""
+          if atom.config.get 'markdown-image-paste-delete.use_subfolder'
+            # 根据设置获取子目录文件名
+            subFolderToUse = atom.config.get 'markdown-image-paste-delete.subfolder'
+            if subFolderToUse != ""
+              assetsDirectory = join(curDirectory, subFolderToUse)
+              # 如果子目录不存在则创建之
+              if !fs.existsSync assetsDirectory
+                fs.mkdirSync assetsDirectory
+              # 文件完整路径名
+              fullname = join(assetsDirectory, filename)
+
+          # 如果下一行不为空，则添加一个空行分割开来
+          textd = ""
+          if !cursor.getBuffer().isRowBlank(parseInt(position.row + 1))
+            textd += "\r\n"
+
+          # 插入图片代码，如果上一行不为空，则添加一个空行分割开来
+          textb = ""
+          if !cursor.getBuffer().isRowBlank(parseInt(position.row - 1))
+            textb += "\r\n"
+            position.row = parseInt(position.row + 1)
+
+          # markdown图片文件链接代码生成
+          if(fileFormat == "md")
+            text += '![' + filenameNosuffix + ']('
+            text += join(subFolderToUse, filename) + ') '
+          # rst图片文件链接代码生成
+          else if (fileFormat == "rst")
+            text += ".. figure:: "
+            text += join(subFolderToUse, filename) + '\r\n'
+            text += "\t :alt: " + filename
+
+          # 将反斜杠改成斜杠，这样在github和gitbook上都可以正常显示
+          text = text.replace(/\\/g, "/");
+          position.column = text.length
+          text = textb + text + textd
+
+          # 写图片到文件系统 img.toPng() 这个地方会造成错误，版本问题
+          # 如果不灵光，就要 ctrl+shift+i 查看日志
+          fs.writeFileSync fullname, img.toPNG()
+          # 写代码到光标行
+          cursor.insertText text
+          cursor.setCursorBufferPosition position
+          if atom.config.get 'markdown-image-paste-delete.infoalertenable'
+            if atom.config.get 'markdown-image-paste-delete.infoalertenable'
+              atom.notifications.addSuccess(message = messagecontent, {detail:'文件促存放路径:' + fullname})
+        # 捕获错误异常
+        catch error
+            if atom.config.get 'markdown-image-paste-delete.infoalertenable'
+              atom.notifications.addError(message = '贴图失败', {detail:'错误原因:' + error})
+    delete : ->
         try
           if !cursor = atom.workspace.getActiveTextEditor() then return
 
