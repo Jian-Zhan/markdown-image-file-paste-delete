@@ -129,6 +129,7 @@ module.exports =
           if atom.config.get 'markdown-local-attachments.infoalertenable'
             if atom.config.get 'markdown-local-attachments.infoalertenable'
               atom.notifications.addSuccess(message = messagecontent, {detail:'文件促存放路径:' + fullname})
+
         # 捕获错误异常
         catch error
             if atom.config.get 'markdown-local-attachments.infoalertenable'
@@ -160,7 +161,15 @@ module.exports =
           else
               if grammar.scopeName != 'source.gfm' then return
 
-          # clipboard扩展读取粘贴板图片内容
+          # clipboard扩展读取文件路径
+          # windows系统
+          rawFilePath = clipboard.read('FileNameW')
+          filePath = rawFilePath.replace(new RegExp(String.fromCharCode(0), 'g'), '')
+          if filePath.isEmpty()
+            # mac系统
+            filePath = clipboard.read('public.file-url').replace('file://', '')
+          atom.notifications.addSuccess(message = 'File path', {detail:'文件路径:' + filePath})
+
           img = clipboard.readImage()
           # 空内容处理
           if img.isEmpty()
@@ -168,30 +177,8 @@ module.exports =
               atom.notifications.addError(message = '快速贴图失败', {detail:'粘贴板为空'})
             return
 
-          editor = atom.workspace.getActiveTextEditor()
-          position = cursor.getCursorBufferPosition()
+          # filePath, fileName, filenameNosuffix, fullname(xiamian)
 
-          filenamecandidate = atom.workspace.getActiveTextEditor().getSelectedText()
-          # 检测选中区域是否可以构成文件名
-          filenamePattern = /// ^[0-9a-zA-Z-_]+$ ///
-          if filenamecandidate.match filenamePattern
-            messagecontent = "命名贴图成功"
-            filename = filenamecandidate
-          else
-            messagecontent = "快速贴图成功"
-            filename = new Date().format()
-
-          filenameNosuffix = filename
-          # 添加文件名后缀
-          filename += ".png"
-
-          # 如果当前行就是空白行，直接插入，否则删除行内容插入
-          if !cursor.getBuffer().isRowBlank(position.row)
-              # 修改光标在删除行上一行尾部，从尾部插入图片链接代码
-              position.column = 0
-              cursor.setCursorBufferPosition position
-              # 删除光标之后行的内容
-              editor.deleteToEndOfLine(true)
           # 设定文件存放子目录
           curDirectory = dirname(cursor.getPath())
           # Join adds a platform independent directory separator
@@ -209,6 +196,18 @@ module.exports =
               # 文件完整路径名
               fullname = join(assetsDirectory, filename)
 
+          # 写图片到文件系统 img.toPng() 这个地方会造成错误，版本问题
+          # 如果不灵光，就要 ctrl+shift+i 查看日志
+          fs.writeFileSync fullname, img.toPNG()
+
+          # 如果当前行就是空白行，直接插入，否则删除行内容插入
+          if !cursor.getBuffer().isRowBlank(position.row)
+              # 修改光标在删除行上一行尾部，从尾部插入图片链接代码
+              position.column = 0
+              cursor.setCursorBufferPosition position
+              # 删除光标之后行的内容
+              editor.deleteToEndOfLine(true)
+
           # 如果下一行不为空，则添加一个空行分割开来
           textd = ""
           if !cursor.getBuffer().isRowBlank(parseInt(position.row + 1))
@@ -220,13 +219,13 @@ module.exports =
             textb += "\r\n"
             position.row = parseInt(position.row + 1)
 
-          # markdown图片文件链接代码生成
           if(fileFormat == "md")
-            text += '![' + filenameNosuffix + ']('
+            # markdown文件链接代码生成
+            text += '[' + filenameNosuffix + ']('
             text += join(subFolderToUse, filename) + ') '
-          # rst图片文件链接代码生成
           else if (fileFormat == "rst")
-            text += ".. figure:: "
+            # rst文件链接代码生成
+            text += ".. _" + filenameNosuffix + ": "
             text += join(subFolderToUse, filename) + '\r\n'
             text += "\t :alt: " + filename
 
@@ -235,15 +234,13 @@ module.exports =
           position.column = text.length
           text = textb + text + textd
 
-          # 写图片到文件系统 img.toPng() 这个地方会造成错误，版本问题
-          # 如果不灵光，就要 ctrl+shift+i 查看日志
-          fs.writeFileSync fullname, img.toPNG()
           # 写代码到光标行
           cursor.insertText text
           cursor.setCursorBufferPosition position
           if atom.config.get 'markdown-local-attachments.infoalertenable'
             if atom.config.get 'markdown-local-attachments.infoalertenable'
               atom.notifications.addSuccess(message = messagecontent, {detail:'文件促存放路径:' + fullname})
+
         # 捕获错误异常
         catch error
             if atom.config.get 'markdown-local-attachments.infoalertenable'
