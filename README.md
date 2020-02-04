@@ -1,10 +1,9 @@
-# markdown-image-paste-delete
+# markdown-image-file-paste-delete
 
-## 本仓库说明
+It is based on yifengyou/markdown-image-paste-delete with these extra features:
 
-Atom贴图/删图工具
+* Insert files as attachments
 
-```
 Something I hope you know before go into the coding~
 * First, please watch or star this repo, I'll be more happy if you follow me.
 * Bug report, questions and discussion are welcome, you can post an issue or pull a request.
