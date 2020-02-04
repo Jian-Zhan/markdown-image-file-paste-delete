@@ -10,16 +10,16 @@ module.exports =
     activate : ->
       @subscriptions = new CompositeDisposable
       @subscriptions.add atom.commands.add 'atom-workspace',
-            'markdown-local-attachments:insert' : => @insert()
+            'markdown-local-attachments:insert-image' : => @insert-image()
       @subscriptions.add atom.commands.add 'atom-workspace',
-            'markdown-local-attachments:attach' : => @attach()
+            'markdown-local-attachments:attach-file' : => @attach-file()
       @subscriptions.add atom.commands.add 'atom-workspace',
-            'markdown-local-attachments:delete' : => @delete()
+            'markdown-local-attachments:delete-file' : => @delete-file()
 
     deactivate : ->
         @subscriptions.dispose()
 
-    insert : ->
+    insert-image : ->
         try
           if !cursor = atom.workspace.getActiveTextEditor() then return
           text = clipboard.readText()
@@ -134,7 +134,7 @@ module.exports =
             if atom.config.get 'markdown-local-attachments.infoalertenable'
               atom.notifications.addError(message = '贴图失败', {detail:'错误原因:' + error})
 
-    attach : ->
+    attach-file : ->
         try
           if !cursor = atom.workspace.getActiveTextEditor() then return
           text = clipboard.readText()
@@ -248,7 +248,8 @@ module.exports =
         catch error
             if atom.config.get 'markdown-local-attachments.infoalertenable'
               atom.notifications.addError(message = '贴图失败', {detail:'错误原因:' + error})
-    delete : ->
+
+    delete-file : ->
         try
           if !cursor = atom.workspace.getActiveTextEditor() then return
 
@@ -265,13 +266,12 @@ module.exports =
               cursor.deleteToEndOfWord()
               return
 
-
           # 选中图片代码区域，按快捷键ctrl-delete
           selectedToDelImg = cursor.lineTextForBufferRow(cursor.getCursorBufferPosition().row)
           # 删掉当前行的空白字符
           selectedToDelImg = selectedToDelImg.replace(/\s/g, "");
-          # 检测当前行是否为图片md链接
-          markdownImageLinkPattern = /// ^!\[[0-9a-zA-Z-_]+\]\([0-9a-zA-Z-_/]+\.png\)$ ///
+          # 检测当前行是否为md链接
+          markdownImageLinkPattern = /// ^!?\[[0-9a-zA-Z-_]+\]\([0-9a-zA-Z-_/]+\.png\)$ ///
           if !selectedToDelImg.match markdownImageLinkPattern
             # 当前在markdown文件中，但是光标所在行不是md链接
             cursor.deleteToEndOfWord()

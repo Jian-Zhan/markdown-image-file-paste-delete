@@ -3,15 +3,15 @@
     "atom-text-editor": [
       {
         "label": "Insert Image",
-        "command": "markdown-local-attachments:insert"
+        "command": "markdown-local-attachments:insert-image"
       },
       {
         "label": "Attach File",
-        "command": "markdown-local-attachments:attach"
+        "command": "markdown-local-attachments:attach-file"
       },
       {
         "label": "Delete File/Image",
-        "command": "markdown-local-attachments:delete"
+        "command": "markdown-local-attachments:delete-file"
       }
     ]
   },
@@ -24,15 +24,15 @@
           "submenu": [
             {
               "label": "Insert Image",
-              "command": "markdown-local-attachments:insert"
+              "command": "markdown-local-attachments:insert-image"
             },
             {
               "label": "Attach File",
-              "command": "markdown-local-attachments:attach"
+              "command": "markdown-local-attachments:attach-file"
             },
             {
               "label": "Delete File/Image",
-              "command": "markdown-local-attachments:delete"
+              "command": "markdown-local-attachments:delete-file"
             }
           ]
         }
