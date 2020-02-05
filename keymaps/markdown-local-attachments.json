@@ -1,6 +1,6 @@
 {
   "atom-workspace atom-text-editor": {
-    "cmd-v":      "markdown-local-attachments:attach-file",
-    "cmd-backspace":  "markdown-local-attachments:delete-file"
+    "ctrl-v":      "markdown-local-attachments:attach-file",
+    "ctrl-backspace":  "markdown-local-attachments:delete-file"
   }
 }

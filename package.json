@@ -58,7 +58,7 @@
   "version": "0.5.0",
   "apmInstallSource": {
     "type": "git",
-    "source": "https://github.com/jian-zhan/markdown-local-attachments",
-    "sha": "c7ce344e6f2baa440b32d969c55ec0c585af237f"
+    "source": "https://github.com/jian-zhan/markdown-local-attachments.git",
+    "sha": "cacad0ec836e7d3e46980a59c9ce9030011da197"
   }
 }

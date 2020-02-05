@@ -132,7 +132,7 @@ module.exports =
 
           # 写代码到光标行
           cursor.insertText text
-          position.column = text.length
+          position.column += text.length
           cursor.setCursorBufferPosition position
 
           if atom.config.get 'markdown-local-attachments.infoalertenable'
@@ -181,24 +181,24 @@ module.exports =
           # 检验文件存在与否
           if !fs.existsSync fullname
             if atom.config.get 'markdown-local-attachments.infoalertenable'
-              atom.notifications.addError(message = '删除失败', {detail:'文件不存在，其完整路径名:' + fullname })
+              atom.notifications.addError(message = 'Deletion failed', {detail:'File does't exist:' + fullname })
             return
 
           # 删除文件，删除链接内容
           fs.unlink fullname, (error) ->
               if error
                   if atom.config.get 'markdown-local-attachments.infoalertenable'
-                      atom.notifications.addError(message = '删除失败', {detail:'原因:' + error})
+                      atom.notifications.addError(message = 'Deletion failed', {detail:'Reason:' + error})
                   return
               else
                   if atom.config.get 'markdown-local-attachments.infoalertenable'
-                      atom.notifications.addSuccess(message = '删除成功', {detail:'[' + fullname + ']已被删除'})
+                      atom.notifications.addSuccess(message = 'Deletion done', {detail:'[' + fullname + '] deleted'})
                   cursor.delete()
 
         # 捕获错误异常
         catch error
             if atom.config.get 'markdown-local-attachments.infoalertenable'
-                atom.notifications.addError(message = '删除失败', {detail:'错误原因:' + error})
+                atom.notifications.addError(message = 'Deletion failed', {detail:'Reason:' + error})
 
 # 光标所在处插入text，光标移动到文本末尾
 paste_text = (cursor, text) ->
