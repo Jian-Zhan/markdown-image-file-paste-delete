@@ -181,7 +181,7 @@ module.exports =
           # 检验文件存在与否
           if !fs.existsSync fullname
             if atom.config.get 'markdown-local-attachments.infoalertenable'
-              atom.notifications.addError(message = 'Deletion failed', {detail:'File does't exist:' + fullname })
+              atom.notifications.addError(message = 'Deletion failed', {detail:'File does\'t exist:' + fullname })
             return
 
           # 删除文件，删除链接内容
